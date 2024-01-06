@@ -18,6 +18,8 @@ using Microsoft.Win32;
 using MapleLib.PacketLib;
 using MapleLib.MapleCryptoLib;
 using MapleLib;
+using System.Dynamic;
+using System.Runtime.InteropServices;
 
 
 
@@ -44,8 +46,7 @@ namespace ElectronMS
         public Dictionary<ushort, Listener> Listeners = new Dictionary<ushort, Listener>();
 
         public frmMain()
-        {
-          
+        {          
             InitializeComponent();
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             this.BackColor = Color.Bisque;
@@ -53,10 +54,11 @@ namespace ElectronMS
             TempFolder = Path.GetTempPath();
             this.Mode = Program.Mode;
             trayMenu = new ContextMenu();
-            trayMenu.MenuItems.Add("Start ElectronMS", OnStartButton);
-            trayMenu.MenuItems.Add("Vote Page", OnSiteButton);
-           // trayMenu.MenuItems.Add("Show", OnShow);
-           // trayMenu.MenuItems.Add("Unstuck account", OnUnstuck);
+            //trayMenu.MenuItems.Add("Start ElectronMS", OnStartButton);
+            trayMenu.MenuItems.Add("Start MapleStory", OnStartButton);
+            // trayMenu.MenuItems.Add("Vote Page", OnSiteButton);
+            // trayMenu.MenuItems.Add("Show", OnShow);
+            // trayMenu.MenuItems.Add("Unstuck account", OnUnstuck);
             trayMenu.MenuItems.Add("Exit", OnExit);
             trayIcon = new NotifyIcon();
             trayIcon.Text = "ElectronMS" + ((Program.DevMode) ? " - DEV" : "");
@@ -66,7 +68,8 @@ namespace ElectronMS
             trayIcon.Visible = true;
             if(Mode != MapleMode.GMS)
             ShowInTaskbar = false; // Remove from taskbar.
-            new Thread(StartLoading).Start();
+            //MessageBox.Show(Program.toIP);
+            new Thread(StartLoading).Start();            
         }
 
         private void OnSiteButton(object sender, EventArgs e)
@@ -114,14 +117,17 @@ namespace ElectronMS
 
         void StartLoading()
         {
-           routeIP();
-         StartTunnels();
+            routeIP();
+            StartTunnels();
         }
 
         private void frmMain_Load(object sender, EventArgs e)
         {
  
         }
+
+        [DllImport("LRProc.dll", EntryPoint = "LRInject", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int LRInject(string application, string workpath, string commandline, string dllpath, uint CodePage, bool HookIME);
 
         public void LaunchMaple()
         {
@@ -131,6 +137,38 @@ namespace ElectronMS
                 MessageBox.Show("메이플스토리가 설치 된 경로에 접속기를 넣어주세요.");
                 Application.Exit();
             }
+
+            string path = Path.Combine(currentDirectory, "Maplestory.exe");
+            string command = "GameLaunching";
+
+            string dllPath = string.Format("{0}\\{1}", System.Environment.CurrentDirectory, "LRHookx32.dll");
+
+            var commandLine = string.Empty;
+            commandLine = path.StartsWith("\"")
+                ? $"{path} "
+                : $"\"{path}\" ";
+            commandLine += command;
+            //System.Globalization.TextInfo culInfo = System.Globalization.CultureInfo.GetCultureInfo("zh-HK").TextInfo;
+            System.Globalization.TextInfo culInfo = System.Globalization.CultureInfo.GetCultureInfo("ko-KR").TextInfo;            
+
+            new Thread(new ThreadStart(() => {
+                try
+                {
+                    //LRInject(path, Path.GetDirectoryName(path), commandLine, dllPath, (uint)culInfo.ANSICodePage, App.OSVersion >= App.Win8 && is64BitGame);
+                    LRInject(path, Path.GetDirectoryName(path), commandLine, dllPath, (uint)culInfo.ANSICodePage, false);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    //errexit((TryFindResource("MsgLocalePluginRunError") as string).Replace("\\r\\n", "\r\n"), 2);
+                    MessageBox.Show(ex.ToString());
+                }
+            })).Start();
+
+            //MessageBox.Show("11111");
+
+            return;
+
             Maple = new Process();
             Maple.StartInfo.FileName = Path.Combine(currentDirectory, "Maplestory.exe");
             if (Mode == MapleMode.KMS)
@@ -233,7 +271,7 @@ namespace ElectronMS
                 return;
             }
             btnLogin.Enabled = false;
-            
+
             /*string message;
             try
             {

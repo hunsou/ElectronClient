@@ -6,6 +6,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Net.NetworkInformation;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace ElectronMS
 {
@@ -51,7 +52,29 @@ namespace ElectronMS
              }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            MessageBox.Show("Right-Click on the bottom right tray icon to launch the game.\nNote: May have to run launch twice to ensure you connect!", "ElectronMS");
+            //MessageBox.Show("Right-Click on the bottom right tray icon to launch the game.\nNote: May have to run launch twice to ensure you connect!", "ElectronMS");
+
+            //20240105把ip写到可执行文件名上
+
+            string input = AppDomain.CurrentDomain.FriendlyName + "";
+
+            //MessageBox.Show(input);
+
+            // 定义IP地址的正则表达式模式
+            string pattern = @"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}";
+
+            // 创建 Regex 对象并进行匹配
+            MatchCollection matches = Regex.Matches(input, pattern);
+
+            foreach (Match match in matches)
+            {
+                Constant.IP = match.Value;
+                //Console.WriteLine("提取到的IP地址为：" + match.Value);
+                Program.toIP = Constant.IP;
+                //MessageBox.Show(Constant.IP);
+                break;
+            }
+
             form = new frmMain();
             if (useGui || Mode == MapleMode.GMS)
             {
