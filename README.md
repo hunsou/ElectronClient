@@ -1,9 +1,4 @@
-# ElectronClient
-The client for the open source emulator ElectronMS.
-
-Change the IP in Constant.cs and build to use.
-
-# customizations
+# 20240107 several customizations
 
 1. 去掉了启动时的MessageBox
 2. 去掉了右键菜单中的Vote
@@ -19,3 +14,9 @@ Change the IP in Constant.cs and build to use.
 - 客户端 Client Side  
 [ElectronClient](https://github.com/Bratah123/ElectronClient)  
 可以修改`Local.dll`中`00004ce0 09`的16进制数字IP实现修改连接的服务器IP  
+
+# ElectronClient
+The client for the open source emulator ElectronMS.
+
+Change the IP in Constant.cs and build to use.
+
