@@ -137,6 +137,17 @@ namespace ElectronMS
                 MessageBox.Show("메이플스토리가 설치 된 경로에 접속기를 넣어주세요.");
                 Application.Exit();
             }
+			
+			switch (Beanfun.WindowsAPI.GetSystemDefaultLocaleName())
+			{
+				case "ko-KR":
+				Maple = new Process();
+				Maple.StartInfo.FileName = Path.Combine(currentDirectory, "Maplestory.exe");
+				if (Mode == MapleMode.KMS)
+					Maple.StartInfo.Arguments = "GameLaunching";
+						 Maple.Start();
+				return;
+			}
 
             string path = Path.Combine(currentDirectory, "Maplestory.exe");
             string command = "GameLaunching";
@@ -149,7 +160,7 @@ namespace ElectronMS
                 : $"\"{path}\" ";
             commandLine += command;
             //System.Globalization.TextInfo culInfo = System.Globalization.CultureInfo.GetCultureInfo("zh-HK").TextInfo;
-            System.Globalization.TextInfo culInfo = System.Globalization.CultureInfo.GetCultureInfo("ko-KR").TextInfo;            
+            System.Globalization.TextInfo culInfo = System.Globalization.CultureInfo.GetCultureInfo("ko-KR").TextInfo;
 
             new Thread(new ThreadStart(() => {
                 try
@@ -168,14 +179,6 @@ namespace ElectronMS
             //MessageBox.Show("11111");
 
             return;
-
-            Maple = new Process();
-            Maple.StartInfo.FileName = Path.Combine(currentDirectory, "Maplestory.exe");
-            if (Mode == MapleMode.KMS)
-                Maple.StartInfo.Arguments = "GameLaunching";
-                     Maple.Start();
-
-           
         }
           
     
